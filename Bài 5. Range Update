@@ -1,1 +1,59 @@
-/
+#include <bits/stdc++.h>
+using namespace std;
+#define  ll long long
+ll a[1000005];
+ll t[1000005];
+ll lazy[1000005];
+void init(ll u , ll l , ll r){
+    t[u] = 0;
+    lazy[u] = 0;
+    if(l == r)return;
+    ll m = ( l + r) / 2;
+    init(2*u + 1 , l , m) ;
+    init(2*u + 2 , m+1 , r);
+}
+void updatelazy(ll  u ,ll l , ll r , ll tl , ll tr , ll x){// luoi nhac ,khong voi vang push x xuong doan con don vi cau thanh no ben duoi , ti nua truy van thi cap nhat doan con ben duoi
+    if(l == tl && r==tr){
+        lazy[u] += x;
+    }
+    else{
+        ll m = (tl + tr)/2;
+        if(r <= m)updatelazy(2*u + 1 ,l,r,tl,m,x);
+        else if( l >= m+1)updatelazy( 2*u +2 ,l , r , m+1 , tr , x);
+        else updatelazy(2*u + 1 ,l , m , tl , m, x) , updatelazy( 2* u + 2 ,m+1 , r , m+1 , tr , x);
+    }
+}
+ll query(ll u ,ll l , ll r , ll id){
+    if(lazy[u]){
+        t[u]+=lazy[u];
+        lazy[2*u+1]+=lazy[u];
+        lazy[2*u+2]+=lazy[u];
+        lazy[u] = 0;
+    }
+    if(l == r)return a[id] + t[u];
+    ll m = (l + r) / 2;
+    if( id <= m)return query(2*u+1 , l,m,id);
+    return query( 2* u + 2 , m+1 , r , id);
+}
+void solve(){
+    ll  n , q;
+    cin >> n >> q;
+    for(ll i =0 ; i< n ; i++)cin >>a[i];
+    init(0,0,n-1);
+    while(q--){
+        ll type , l , r , v;
+        cin >> type;
+        if(type == 1){
+            cin >> l >> r >> v;
+            updatelazy(0,l-1,r-1,0,n-1,v);
+        }
+        else {
+            ll id;
+            cin >> id;
+            cout<<query(0,0,n-1, id-1)<<endl;
+        }
+    }
+}
+int main(){
+    solve();
+}
